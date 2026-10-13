@@ -1,0 +1,11 @@
+chairman: planner
+settings:
+  orchestration_mode: evoteam
+  max_seconds: 1800
+  max_messages: 500
+  reflection_phase_timeout: 600
+  team_selection_enabled: true
+  chairman_teammate_profiles_enabled: true
+  member_teammate_profiles_enabled: false
+  answer_agent: answer_agent
+  answer_agent_required: true

@@ -1,0 +1,153 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/mixed-benchmark/manifest.schema.json",
+  "title": "MIXED-BENCHMARK Task Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "suite_id",
+    "active_benchmarks",
+    "description",
+    "ordering",
+    "shared_evolution",
+    "isolation_policy",
+    "benchmark_bindings",
+    "tasks"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "suite_id": {"type": "string", "minLength": 1},
+    "description": {"type": "string"},
+    "active_benchmarks": {
+      "type": "array",
+      "items": {"enum": ["locobench", "locabench", "gaia", "beyondswe"]},
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "ordering": {
+      "type": "object",
+      "required": ["strategy", "seed"],
+      "properties": {
+        "strategy": {"enum": ["stratified_round_robin", "global_shuffle"]},
+        "seed": {"type": "integer"},
+        "shuffle_within_round": {"type": "boolean"},
+        "shuffle_scope": {"type": "string"},
+        "materialized_order": {"type": "boolean"},
+        "order_hash": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": true
+    },
+    "shared_evolution": {
+      "type": "object",
+      "required": [
+        "mode",
+        "team_name",
+        "state_root",
+        "require_common_agent_namespace",
+        "shared_artifacts"
+      ],
+      "properties": {
+        "mode": {"const": "single_team_workspace"},
+        "team_name": {"type": "string", "minLength": 1},
+        "state_root": {"type": "string", "minLength": 1},
+        "require_common_agent_namespace": {"const": true},
+        "shared_artifacts": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1},
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      },
+      "additionalProperties": true
+    },
+    "isolation_policy": {
+      "type": "object",
+      "required": ["selector_visible_fields", "selector_hidden_fields"],
+      "properties": {
+        "selector_visible_fields": {
+          "type": "array",
+          "items": {"type": "string"},
+          "uniqueItems": true
+        },
+        "selector_hidden_fields": {
+          "type": "array",
+          "items": {"type": "string"},
+          "uniqueItems": true
+        }
+      },
+      "additionalProperties": true
+    },
+    "benchmark_bindings": {
+      "type": "object",
+      "required": [],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^(locobench|locabench|gaia|beyondswe)$": {
+          "type": "object",
+          "required": [
+            "adapter_module",
+            "adapter_class",
+            "task_construction",
+            "native_environment",
+            "execution_policy",
+            "execution_policy_version",
+            "output_contract",
+            "submission_type",
+            "native_evaluator",
+            "native_allowed_tools"
+          ],
+          "properties": {
+            "native_allowed_tools": {
+              "type": "array",
+              "items": {"type": "string", "minLength": 1},
+              "minItems": 1,
+              "uniqueItems": true
+            }
+          },
+          "additionalProperties": {"type": ["string", "number", "boolean", "array", "object", "null"]}
+        }
+      }
+    },
+    "tasks": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["mixed_task_id", "phase", "order", "source"],
+        "properties": {
+          "mixed_task_id": {"type": "string", "minLength": 1},
+          "phase": {"enum": ["evolve", "test"]},
+          "order": {"type": "integer", "minimum": 0},
+          "enabled": {"type": "boolean", "default": true},
+          "source": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["benchmark", "split", "task_id", "source_index", "adapter_args"],
+            "properties": {
+              "benchmark": {"enum": ["locobench", "locabench", "gaia", "beyondswe"]},
+              "split": {"type": "string", "minLength": 1},
+              "task_id": {"type": "string", "minLength": 1},
+              "source_index": {"type": "integer", "minimum": 0},
+              "adapter_args": {"type": "object"}
+            }
+          },
+          "hidden_annotations": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "collaboration_profile": {
+                "type": "array",
+                "items": {"type": "string", "minLength": 1},
+                "uniqueItems": true
+              },
+              "difficulty": {"type": "string"},
+              "notes": {"type": "string"}
+            }
+          }
+        }
+      }
+    }
+  }
+}

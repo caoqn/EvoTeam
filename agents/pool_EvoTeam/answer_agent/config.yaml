@@ -1,0 +1,8 @@
+name: answer_agent
+role: global_service
+description: "Benchmark-agnostic final-output service; follows the native adapter's output contract and is never a team-template member."
+model: gpt-5.6-luna
+temperature: 0.2
+max_tokens: 32768
+max_steps: 40
+tools: []

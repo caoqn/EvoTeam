@@ -1,0 +1,14 @@
+name: implementer
+role: implementer
+description: "Creates or modifies the native task artifact, including source files, structured outputs, or verified local deliverables."
+model: gpt-5.6-luna
+temperature: 0.2
+max_tokens: 32768
+max_steps: 160
+tools:
+  - read_file
+  - write_file
+  - bash
+  - docker_bash
+  - docker_str_replace_editor
+  - loca_mcp

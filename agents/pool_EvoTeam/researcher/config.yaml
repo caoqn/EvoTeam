@@ -1,0 +1,12 @@
+name: researcher
+role: evidence_researcher
+description: "Retrieves external evidence from authoritative sources and returns exact facts, provenance, and uncertainty without finalizing the task."
+model: gpt-5.6-luna
+temperature: 0.2
+max_tokens: 32768
+max_steps: 120
+tools:
+  - read_file
+  - bash
+  - web_search
+  - web_fetch
