@@ -1,0 +1,14 @@
+name: verifier
+role: verifier
+description: "Independently checks calculations, sources, code tests, artifacts, or external postconditions and reports pass/fail evidence."
+model: gpt-5.6-luna
+temperature: 0.2
+max_tokens: 32768
+max_steps: 140
+tools:
+  - read_file
+  - bash
+  - web_search
+  - web_fetch
+  - docker_bash
+  - loca_mcp

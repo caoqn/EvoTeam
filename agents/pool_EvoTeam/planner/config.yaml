@@ -1,0 +1,16 @@
+name: planner
+role: chairman
+description: "Cross-benchmark coordinator that identifies the collaboration pattern, recruits a minimal roster, and owns the final evidence handoff."
+model: gpt-5.6-luna
+temperature: 0.2
+max_tokens: 32768
+max_steps: 200
+tools:
+  - read_file
+  - write_file
+  - bash
+  - web_search
+  - web_fetch
+  - docker_bash
+  - docker_str_replace_editor
+  - loca_mcp

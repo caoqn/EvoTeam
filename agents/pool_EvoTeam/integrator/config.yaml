@@ -1,0 +1,12 @@
+name: integrator
+role: integrator
+description: "Combines distributed evidence, resolves cross-artifact consistency, and prepares a provenance-preserving handoff to the finalizer."
+model: gpt-5.6-luna
+temperature: 0.2
+max_tokens: 32768
+max_steps: 120
+tools:
+  - read_file
+  - bash
+  - docker_bash
+  - loca_mcp

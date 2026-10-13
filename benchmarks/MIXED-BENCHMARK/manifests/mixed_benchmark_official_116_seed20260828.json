@@ -1,0 +1,1607 @@
+{
+  "schema_version": 1,
+  "suite_id": "mixed-benchmark-official-116-seed20260828",
+  "active_benchmarks": [
+    "locobench",
+    "locabench",
+    "gaia",
+    "beyondswe"
+  ],
+  "description": "MIXED-BENCHMARK fixed-seed 116-case evolution protocol; held-out cases are supplied separately.",
+  "ordering": {
+    "strategy": "global_shuffle",
+    "seed": 20260828,
+    "round_unit": "one task per source benchmark",
+    "shuffle_within_round": true,
+    "shuffle_scope": "evolve",
+    "materialized_order": true,
+    "order_hash": "b6784c5eeec9b23061b8c28fb7ff52c9297a4ba9185e7d393283314acaace87e"
+  },
+  "shared_evolution": {
+    "mode": "single_team_workspace",
+    "team_name": "pool_EvoTeam",
+    "state_root": "agents/pool_EvoTeam",
+    "require_common_agent_namespace": true,
+    "shared_artifacts": [
+      "templates.json",
+      "handoff_rules.json",
+      "constitution.md",
+      "pool.yaml",
+      "*/evolution/prompt_patches.md",
+      "*/evolution/teammate_profiles.yaml",
+      "*/skills/**"
+    ],
+    "evolution_policy": {
+      "evolve_phase": "sequential_updates_after_each_successfully_evaluated_task",
+      "test_phase": "frozen_read_only_snapshot"
+    }
+  },
+  "isolation_policy": {
+    "selector_visible_fields": [
+      "native_full_task",
+      "normalized_collaboration_evidence",
+      "family_catalog"
+    ],
+    "selector_hidden_fields": [
+      "mixed_task_id",
+      "source_benchmark",
+      "source_split",
+      "source_task_id",
+      "source_index",
+      "adapter_module",
+      "native_evaluator",
+      "hidden_annotations"
+    ],
+    "native_components": [
+      "tool_environment",
+      "task_construction",
+      "output_contract",
+      "artifact_collection",
+      "evaluator"
+    ],
+    "score_policy": "retain_native_score_and_compute_cross-suite_metrics_only_during_aggregation"
+  },
+  "benchmark_bindings": {
+    "locobench": {
+      "adapter_module": "benchmarks.mixed_native.locobench_backend",
+      "adapter_class": "LoCoBenchAdapter",
+      "task_construction": "LoCoBenchAdapter.build_task",
+      "native_environment": "isolated solution workspace and native scenario context",
+      "execution_policy": "long_context_solution_workspace",
+      "execution_policy_version": "1",
+      "output_contract": "locobench_solution_summary",
+      "submission_type": "solution_files_plus_completion_summary",
+      "native_evaluator": "LoCoBenchAdapter.evaluate",
+      "native_allowed_tools": [
+        "read_file",
+        "write_file",
+        "bash"
+      ]
+    },
+    "locabench": {
+      "adapter_module": "benchmarks.mixed_native.locabench_backend",
+      "adapter_class": "LOCABenchAdapter",
+      "task_construction": "LOCABenchAdapter.build_task",
+      "native_environment": "per-case LOCA MCP services and isolated local_db workspace",
+      "execution_policy": "stateful_service_operations",
+      "execution_policy_version": "2",
+      "output_contract": "locabench_completion_summary",
+      "submission_type": "verified_environment_state_plus_completion_summary",
+      "native_evaluator": "LOCABenchAdapter.evaluate",
+      "native_allowed_tools": [
+        "read_file",
+        "write_file",
+        "bash",
+        "loca_mcp"
+      ]
+    },
+    "gaia": {
+      "adapter_module": "benchmarks.mixed_native.gaia_backend",
+      "adapter_class": "GAIAAdapter",
+      "task_construction": "GAIAAdapter.build_task",
+      "native_environment": "GAIA attachment workspace and retrieval tools",
+      "execution_policy": "knowledge_question_with_optional_attachment",
+      "execution_policy_version": "1",
+      "output_contract": "gaia_short_answer",
+      "submission_type": "strict_short_answer",
+      "native_evaluator": "GAIAAdapter.evaluate",
+      "native_allowed_tools": [
+        "read_file",
+        "write_file",
+        "bash",
+        "web_search",
+        "web_fetch"
+      ]
+    },
+    "beyondswe": {
+      "adapter_module": "benchmarks.mixed_native.beyondswe_backend",
+      "adapter_class": "BeyondSWEAdapter",
+      "task_construction": "BeyondSWEAdapter.build_task",
+      "native_environment": "per-case Docker repository environment",
+      "execution_policy": "isolated_repository_patch",
+      "execution_policy_version": "1",
+      "output_contract": "beyondswe_patch_summary",
+      "submission_type": "repository_patch_plus_fix_summary",
+      "native_evaluator": "BeyondSWEAdapter.evaluate",
+      "native_allowed_tools": [
+        "read_file",
+        "docker_bash",
+        "docker_str_replace_editor"
+      ]
+    }
+  },
+  "tasks": [
+    {
+      "mixed_task_id": "mixed-evolve-052",
+      "phase": "evolve",
+      "order": 0,
+      "source": {
+        "benchmark": "locobench",
+        "split": "python",
+        "task_id": "python_blockchain_defi_easy_070_cross_file_refactoring_easy_01",
+        "source_index": 12,
+        "adapter_args": {
+          "category": "cross_file_refactoring"
+        }
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-018",
+      "phase": "evolve",
+      "order": 1,
+      "source": {
+        "benchmark": "gaia",
+        "split": "train_20",
+        "task_id": "983bba7c-c092-455f-b6c9-7857003d48fc",
+        "source_index": 18,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-058",
+      "phase": "evolve",
+      "order": 2,
+      "source": {
+        "benchmark": "locobench",
+        "split": "python",
+        "task_id": "python_data_analytics_easy_082_cross_file_refactoring_expert_01",
+        "source_index": 18,
+        "adapter_args": {
+          "category": "cross_file_refactoring"
+        }
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-021",
+      "phase": "evolve",
+      "order": 3,
+      "source": {
+        "benchmark": "locobench",
+        "split": "python",
+        "task_id": "python_api_gateway_hard_009_feature_implementation_expert_01",
+        "source_index": 1,
+        "adapter_args": {
+          "category": "feature_implementation"
+        }
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-108",
+      "phase": "evolve",
+      "order": 4,
+      "source": {
+        "benchmark": "beyondswe",
+        "split": "depmigrate",
+        "task_id": "pydantic_pydantic-settings_pr55",
+        "source_index": 12,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-105",
+      "phase": "evolve",
+      "order": 5,
+      "source": {
+        "benchmark": "beyondswe",
+        "split": "depmigrate",
+        "task_id": "tiangolo_fastapi_pr14186",
+        "source_index": 9,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-107",
+      "phase": "evolve",
+      "order": 6,
+      "source": {
+        "benchmark": "beyondswe",
+        "split": "depmigrate",
+        "task_id": "narwhals-dev_narwhals_pr2958",
+        "source_index": 11,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-095",
+      "phase": "evolve",
+      "order": 7,
+      "source": {
+        "benchmark": "beyondswe",
+        "split": "crossrepo",
+        "task_id": "cornices_cornice_pr271",
+        "source_index": 19,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-017",
+      "phase": "evolve",
+      "order": 8,
+      "source": {
+        "benchmark": "gaia",
+        "split": "train_20",
+        "task_id": "384d0dd8-e8a4-4cfe-963c-d37f256e7662",
+        "source_index": 17,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-012",
+      "phase": "evolve",
+      "order": 9,
+      "source": {
+        "benchmark": "gaia",
+        "split": "train_20",
+        "task_id": "33d8ea3b-6c6b-4ff1-803d-7e270dea8a57",
+        "source_index": 12,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-086",
+      "phase": "evolve",
+      "order": 10,
+      "source": {
+        "benchmark": "beyondswe",
+        "split": "crossrepo",
+        "task_id": "pycqa_pyflakes_pr413",
+        "source_index": 10,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-088",
+      "phase": "evolve",
+      "order": 11,
+      "source": {
+        "benchmark": "beyondswe",
+        "split": "crossrepo",
+        "task_id": "pylons_pyramid_pr2951",
+        "source_index": 12,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-094",
+      "phase": "evolve",
+      "order": 12,
+      "source": {
+        "benchmark": "beyondswe",
+        "split": "crossrepo",
+        "task_id": "pylons_pyramid_pr1320",
+        "source_index": 18,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-001",
+      "phase": "evolve",
+      "order": 13,
+      "source": {
+        "benchmark": "gaia",
+        "split": "train_20",
+        "task_id": "cffe0e32-c9a6-4c52-9877-78ceb4aaa9fb",
+        "source_index": 1,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-026",
+      "phase": "evolve",
+      "order": 14,
+      "source": {
+        "benchmark": "locobench",
+        "split": "python",
+        "task_id": "python_api_microservice_expert_080_feature_implementation_hard_01",
+        "source_index": 6,
+        "adapter_args": {
+          "category": "feature_implementation"
+        }
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-092",
+      "phase": "evolve",
+      "order": 15,
+      "source": {
+        "benchmark": "beyondswe",
+        "split": "crossrepo",
+        "task_id": "diamondlightsource_python-workflows_pr76",
+        "source_index": 16,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-067",
+      "phase": "evolve",
+      "order": 16,
+      "source": {
+        "benchmark": "locabench",
+        "split": "evolve_96k",
+        "task_id": "CourseAssistantS2LEnv_seed102",
+        "source_index": 7,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-015",
+      "phase": "evolve",
+      "order": 17,
+      "source": {
+        "benchmark": "gaia",
+        "split": "train_20",
+        "task_id": "bec74516-02fc-48dc-b202-55e78d0e17cf",
+        "source_index": 15,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-076",
+      "phase": "evolve",
+      "order": 18,
+      "source": {
+        "benchmark": "beyondswe",
+        "split": "crossrepo",
+        "task_id": "pylons_plaster_pastedeploy_pr14",
+        "source_index": 0,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-046",
+      "phase": "evolve",
+      "order": 19,
+      "source": {
+        "benchmark": "locobench",
+        "split": "python",
+        "task_id": "python_api_microservice_expert_080_cross_file_refactoring_hard_01",
+        "source_index": 6,
+        "adapter_args": {
+          "category": "cross_file_refactoring"
+        }
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-060",
+      "phase": "evolve",
+      "order": 20,
+      "source": {
+        "benchmark": "locabench",
+        "split": "evolve_96k",
+        "task_id": "ApplyPhDEmailS2LEnv_seed101",
+        "source_index": 0,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-093",
+      "phase": "evolve",
+      "order": 21,
+      "source": {
+        "benchmark": "beyondswe",
+        "split": "crossrepo",
+        "task_id": "pylons_waitress_pr238",
+        "source_index": 17,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-106",
+      "phase": "evolve",
+      "order": 22,
+      "source": {
+        "benchmark": "beyondswe",
+        "split": "depmigrate",
+        "task_id": "sinaptik-ai_pandas-ai_pr761",
+        "source_index": 10,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-047",
+      "phase": "evolve",
+      "order": 23,
+      "source": {
+        "benchmark": "locobench",
+        "split": "python",
+        "task_id": "python_api_microservice_medium_008_cross_file_refactoring_hard_01",
+        "source_index": 7,
+        "adapter_args": {
+          "category": "cross_file_refactoring"
+        }
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-091",
+      "phase": "evolve",
+      "order": 24,
+      "source": {
+        "benchmark": "beyondswe",
+        "split": "crossrepo",
+        "task_id": "thekevjames_coveralls-python_pr249",
+        "source_index": 15,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-044",
+      "phase": "evolve",
+      "order": 25,
+      "source": {
+        "benchmark": "locobench",
+        "split": "python",
+        "task_id": "python_api_graphql_expert_007_cross_file_refactoring_medium_01",
+        "source_index": 4,
+        "adapter_args": {
+          "category": "cross_file_refactoring"
+        }
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-023",
+      "phase": "evolve",
+      "order": 26,
+      "source": {
+        "benchmark": "locobench",
+        "split": "python",
+        "task_id": "python_api_graphql_easy_043_feature_implementation_expert_01",
+        "source_index": 3,
+        "adapter_args": {
+          "category": "feature_implementation"
+        }
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-071",
+      "phase": "evolve",
+      "order": 27,
+      "source": {
+        "benchmark": "locabench",
+        "split": "evolve_96k",
+        "task_id": "SetConfCrDdlS2LEnv_seed102",
+        "source_index": 11,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-020",
+      "phase": "evolve",
+      "order": 28,
+      "source": {
+        "benchmark": "locobench",
+        "split": "python",
+        "task_id": "python_api_gateway_expert_045_feature_implementation_hard_01",
+        "source_index": 0,
+        "adapter_args": {
+          "category": "feature_implementation"
+        }
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-100",
+      "phase": "evolve",
+      "order": 29,
+      "source": {
+        "benchmark": "beyondswe",
+        "split": "depmigrate",
+        "task_id": "camel-ai_camel_pr393",
+        "source_index": 4,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-089",
+      "phase": "evolve",
+      "order": 30,
+      "source": {
+        "benchmark": "beyondswe",
+        "split": "crossrepo",
+        "task_id": "neuralensemble_python-neo_pr1554",
+        "source_index": 13,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-090",
+      "phase": "evolve",
+      "order": 31,
+      "source": {
+        "benchmark": "beyondswe",
+        "split": "crossrepo",
+        "task_id": "pycqa_pyflakes_pr632",
+        "source_index": 14,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-051",
+      "phase": "evolve",
+      "order": 32,
+      "source": {
+        "benchmark": "locobench",
+        "split": "python",
+        "task_id": "python_api_rest_expert_042_cross_file_refactoring_hard_01",
+        "source_index": 11,
+        "adapter_args": {
+          "category": "cross_file_refactoring"
+        }
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-098",
+      "phase": "evolve",
+      "order": 33,
+      "source": {
+        "benchmark": "beyondswe",
+        "split": "depmigrate",
+        "task_id": "ariebovenberg_slotscheck_pr227",
+        "source_index": 2,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-038",
+      "phase": "evolve",
+      "order": 34,
+      "source": {
+        "benchmark": "locobench",
+        "split": "python",
+        "task_id": "python_data_analytics_easy_082_feature_implementation_expert_01",
+        "source_index": 18,
+        "adapter_args": {
+          "category": "feature_implementation"
+        }
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-082",
+      "phase": "evolve",
+      "order": 35,
+      "source": {
+        "benchmark": "beyondswe",
+        "split": "crossrepo",
+        "task_id": "pylons_colander_pr315",
+        "source_index": 6,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-006",
+      "phase": "evolve",
+      "order": 36,
+      "source": {
+        "benchmark": "gaia",
+        "split": "train_20",
+        "task_id": "7619a514-5fa8-43ef-9143-83b66a43d7a4",
+        "source_index": 6,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-102",
+      "phase": "evolve",
+      "order": 37,
+      "source": {
+        "benchmark": "beyondswe",
+        "split": "depmigrate",
+        "task_id": "fastapi_sqlmodel_pr1340",
+        "source_index": 6,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-040",
+      "phase": "evolve",
+      "order": 38,
+      "source": {
+        "benchmark": "locobench",
+        "split": "python",
+        "task_id": "python_api_gateway_expert_045_cross_file_refactoring_hard_01",
+        "source_index": 0,
+        "adapter_args": {
+          "category": "cross_file_refactoring"
+        }
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-103",
+      "phase": "evolve",
+      "order": 39,
+      "source": {
+        "benchmark": "beyondswe",
+        "split": "depmigrate",
+        "task_id": "tiangolo_fastapi_pr13639",
+        "source_index": 7,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-024",
+      "phase": "evolve",
+      "order": 40,
+      "source": {
+        "benchmark": "locobench",
+        "split": "python",
+        "task_id": "python_api_graphql_expert_007_feature_implementation_medium_01",
+        "source_index": 4,
+        "adapter_args": {
+          "category": "feature_implementation"
+        }
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-048",
+      "phase": "evolve",
+      "order": 41,
+      "source": {
+        "benchmark": "locobench",
+        "split": "python",
+        "task_id": "python_api_microservice_medium_044_cross_file_refactoring_medium_01",
+        "source_index": 8,
+        "adapter_args": {
+          "category": "cross_file_refactoring"
+        }
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-032",
+      "phase": "evolve",
+      "order": 42,
+      "source": {
+        "benchmark": "locobench",
+        "split": "python",
+        "task_id": "python_blockchain_defi_easy_070_feature_implementation_easy_01",
+        "source_index": 12,
+        "adapter_args": {
+          "category": "feature_implementation"
+        }
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-013",
+      "phase": "evolve",
+      "order": 43,
+      "source": {
+        "benchmark": "gaia",
+        "split": "train_20",
+        "task_id": "bfcd99e1-0690-4b53-a85c-0174a8629083",
+        "source_index": 13,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-000",
+      "phase": "evolve",
+      "order": 44,
+      "source": {
+        "benchmark": "gaia",
+        "split": "train_20",
+        "task_id": "4fc2f1ae-8625-45b5-ab34-ad4433bc21f8",
+        "source_index": 0,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-039",
+      "phase": "evolve",
+      "order": 45,
+      "source": {
+        "benchmark": "locobench",
+        "split": "python",
+        "task_id": "python_data_etl_easy_047_feature_implementation_hard_01",
+        "source_index": 19,
+        "adapter_args": {
+          "category": "feature_implementation"
+        }
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-078",
+      "phase": "evolve",
+      "order": 46,
+      "source": {
+        "benchmark": "beyondswe",
+        "split": "crossrepo",
+        "task_id": "hyundai-kia-connect_hyundai_kia_connect_api_pr489",
+        "source_index": 2,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-062",
+      "phase": "evolve",
+      "order": 47,
+      "source": {
+        "benchmark": "locabench",
+        "split": "evolve_96k",
+        "task_id": "CanvasArrangeExamS2LEnv_seed101",
+        "source_index": 2,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-099",
+      "phase": "evolve",
+      "order": 48,
+      "source": {
+        "benchmark": "beyondswe",
+        "split": "depmigrate",
+        "task_id": "stanfordnlp_dsp_pr403",
+        "source_index": 3,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-104",
+      "phase": "evolve",
+      "order": 49,
+      "source": {
+        "benchmark": "beyondswe",
+        "split": "depmigrate",
+        "task_id": "fastapi_fastapi_pr14036",
+        "source_index": 8,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-050",
+      "phase": "evolve",
+      "order": 50,
+      "source": {
+        "benchmark": "locobench",
+        "split": "python",
+        "task_id": "python_api_rest_easy_078_cross_file_refactoring_expert_01",
+        "source_index": 10,
+        "adapter_args": {
+          "category": "cross_file_refactoring"
+        }
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-056",
+      "phase": "evolve",
+      "order": 51,
+      "source": {
+        "benchmark": "locobench",
+        "split": "python",
+        "task_id": "python_data_analytics_easy_010_cross_file_refactoring_medium_01",
+        "source_index": 16,
+        "adapter_args": {
+          "category": "cross_file_refactoring"
+        }
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-080",
+      "phase": "evolve",
+      "order": 52,
+      "source": {
+        "benchmark": "beyondswe",
+        "split": "crossrepo",
+        "task_id": "factoryboy_factory_boy_pr1059",
+        "source_index": 4,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-033",
+      "phase": "evolve",
+      "order": 53,
+      "source": {
+        "benchmark": "locobench",
+        "split": "python",
+        "task_id": "python_blockchain_defi_expert_034_feature_implementation_medium_01",
+        "source_index": 13,
+        "adapter_args": {
+          "category": "feature_implementation"
+        }
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-109",
+      "phase": "evolve",
+      "order": 54,
+      "source": {
+        "benchmark": "beyondswe",
+        "split": "depmigrate",
+        "task_id": "wemake-services_django-test-migrations_pr348",
+        "source_index": 13,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-009",
+      "phase": "evolve",
+      "order": 55,
+      "source": {
+        "benchmark": "gaia",
+        "split": "train_20",
+        "task_id": "65638e28-7f37-4fa7-b7b9-8c19bb609879",
+        "source_index": 9,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-059",
+      "phase": "evolve",
+      "order": 56,
+      "source": {
+        "benchmark": "locobench",
+        "split": "python",
+        "task_id": "python_data_etl_easy_047_cross_file_refactoring_hard_01",
+        "source_index": 19,
+        "adapter_args": {
+          "category": "cross_file_refactoring"
+        }
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-073",
+      "phase": "evolve",
+      "order": 57,
+      "source": {
+        "benchmark": "locabench",
+        "split": "evolve_96k",
+        "task_id": "WoocommerceNewWelcomeS2LEnv_seed102",
+        "source_index": 13,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-014",
+      "phase": "evolve",
+      "order": 58,
+      "source": {
+        "benchmark": "gaia",
+        "split": "train_20",
+        "task_id": "08cae58d-4084-4616-b6dd-dd6534e4825b",
+        "source_index": 14,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-019",
+      "phase": "evolve",
+      "order": 59,
+      "source": {
+        "benchmark": "gaia",
+        "split": "train_20",
+        "task_id": "c526d8d6-5987-4da9-b24c-83466fa172f3",
+        "source_index": 19,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-063",
+      "phase": "evolve",
+      "order": 60,
+      "source": {
+        "benchmark": "locabench",
+        "split": "evolve_96k",
+        "task_id": "CanvasArrangeExamS2LEnv_seed102",
+        "source_index": 3,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-010",
+      "phase": "evolve",
+      "order": 61,
+      "source": {
+        "benchmark": "gaia",
+        "split": "train_20",
+        "task_id": "0b260a57-3f3a-4405-9f29-6d7a1012dbfb",
+        "source_index": 10,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-114",
+      "phase": "evolve",
+      "order": 62,
+      "source": {
+        "benchmark": "beyondswe",
+        "split": "depmigrate",
+        "task_id": "jxnl_instructor_pr644",
+        "source_index": 18,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-002",
+      "phase": "evolve",
+      "order": 63,
+      "source": {
+        "benchmark": "gaia",
+        "split": "train_20",
+        "task_id": "b415aba4-4b68-4fc6-9b89-2c812e55a3e1",
+        "source_index": 2,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-110",
+      "phase": "evolve",
+      "order": 64,
+      "source": {
+        "benchmark": "beyondswe",
+        "split": "depmigrate",
+        "task_id": "koxudaxi_datamodel-code-generator_pr2423",
+        "source_index": 14,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-111",
+      "phase": "evolve",
+      "order": 65,
+      "source": {
+        "benchmark": "beyondswe",
+        "split": "depmigrate",
+        "task_id": "koxudaxi_datamodel-code-generator_pr2389",
+        "source_index": 15,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-074",
+      "phase": "evolve",
+      "order": 66,
+      "source": {
+        "benchmark": "locabench",
+        "split": "evolve_96k",
+        "task_id": "WoocommerceStockAlertS2LEnv_seed101",
+        "source_index": 14,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-057",
+      "phase": "evolve",
+      "order": 67,
+      "source": {
+        "benchmark": "locobench",
+        "split": "python",
+        "task_id": "python_data_analytics_easy_046_cross_file_refactoring_expert_01",
+        "source_index": 17,
+        "adapter_args": {
+          "category": "cross_file_refactoring"
+        }
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-036",
+      "phase": "evolve",
+      "order": 68,
+      "source": {
+        "benchmark": "locobench",
+        "split": "python",
+        "task_id": "python_data_analytics_easy_010_feature_implementation_medium_01",
+        "source_index": 16,
+        "adapter_args": {
+          "category": "feature_implementation"
+        }
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-008",
+      "phase": "evolve",
+      "order": 69,
+      "source": {
+        "benchmark": "gaia",
+        "split": "train_20",
+        "task_id": "7cc4acfa-63fd-4acc-a1a1-e8e529e0a97f",
+        "source_index": 8,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-011",
+      "phase": "evolve",
+      "order": 70,
+      "source": {
+        "benchmark": "gaia",
+        "split": "train_20",
+        "task_id": "14569e28-c88c-43e4-8c32-097d35b9a67d",
+        "source_index": 11,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-113",
+      "phase": "evolve",
+      "order": 71,
+      "source": {
+        "benchmark": "beyondswe",
+        "split": "depmigrate",
+        "task_id": "utiasdsl_safe-control-gym_pr209",
+        "source_index": 17,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-112",
+      "phase": "evolve",
+      "order": 72,
+      "source": {
+        "benchmark": "beyondswe",
+        "split": "depmigrate",
+        "task_id": "explosion_confection_pr67",
+        "source_index": 16,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-101",
+      "phase": "evolve",
+      "order": 73,
+      "source": {
+        "benchmark": "beyondswe",
+        "split": "depmigrate",
+        "task_id": "simonw_llm_pr400",
+        "source_index": 5,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-084",
+      "phase": "evolve",
+      "order": 74,
+      "source": {
+        "benchmark": "beyondswe",
+        "split": "crossrepo",
+        "task_id": "kitware_trame-server_pr8",
+        "source_index": 8,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-085",
+      "phase": "evolve",
+      "order": 75,
+      "source": {
+        "benchmark": "beyondswe",
+        "split": "crossrepo",
+        "task_id": "thekevjames_coveralls-python_pr236",
+        "source_index": 9,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-004",
+      "phase": "evolve",
+      "order": 76,
+      "source": {
+        "benchmark": "gaia",
+        "split": "train_20",
+        "task_id": "ec09fa32-d03f-4bf8-84b0-1f16922c3ae4",
+        "source_index": 4,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-037",
+      "phase": "evolve",
+      "order": 77,
+      "source": {
+        "benchmark": "locobench",
+        "split": "python",
+        "task_id": "python_data_analytics_easy_046_feature_implementation_expert_01",
+        "source_index": 17,
+        "adapter_args": {
+          "category": "feature_implementation"
+        }
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-003",
+      "phase": "evolve",
+      "order": 78,
+      "source": {
+        "benchmark": "gaia",
+        "split": "train_20",
+        "task_id": "d0633230-7067-47a9-9dbf-ee11e0a2cdd6",
+        "source_index": 3,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-035",
+      "phase": "evolve",
+      "order": 79,
+      "source": {
+        "benchmark": "locobench",
+        "split": "python",
+        "task_id": "python_blockchain_nft_medium_071_feature_implementation_easy_01",
+        "source_index": 15,
+        "adapter_args": {
+          "category": "feature_implementation"
+        }
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-097",
+      "phase": "evolve",
+      "order": 80,
+      "source": {
+        "benchmark": "beyondswe",
+        "split": "depmigrate",
+        "task_id": "dapper91_pydantic-xml_pr297",
+        "source_index": 1,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-054",
+      "phase": "evolve",
+      "order": 81,
+      "source": {
+        "benchmark": "locobench",
+        "split": "python",
+        "task_id": "python_blockchain_nft_medium_035_cross_file_refactoring_expert_01",
+        "source_index": 14,
+        "adapter_args": {
+          "category": "cross_file_refactoring"
+        }
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-022",
+      "phase": "evolve",
+      "order": 82,
+      "source": {
+        "benchmark": "locobench",
+        "split": "python",
+        "task_id": "python_api_gateway_hard_081_feature_implementation_easy_01",
+        "source_index": 2,
+        "adapter_args": {
+          "category": "feature_implementation"
+        }
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-007",
+      "phase": "evolve",
+      "order": 83,
+      "source": {
+        "benchmark": "gaia",
+        "split": "train_20",
+        "task_id": "db4fd70a-2d37-40ea-873f-9433dc5e301f",
+        "source_index": 7,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-065",
+      "phase": "evolve",
+      "order": 84,
+      "source": {
+        "benchmark": "locabench",
+        "split": "evolve_96k",
+        "task_id": "CanvasListTestS2LEnv_seed102",
+        "source_index": 5,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-030",
+      "phase": "evolve",
+      "order": 85,
+      "source": {
+        "benchmark": "locobench",
+        "split": "python",
+        "task_id": "python_api_rest_easy_078_feature_implementation_expert_01",
+        "source_index": 10,
+        "adapter_args": {
+          "category": "feature_implementation"
+        }
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-055",
+      "phase": "evolve",
+      "order": 86,
+      "source": {
+        "benchmark": "locobench",
+        "split": "python",
+        "task_id": "python_blockchain_nft_medium_071_cross_file_refactoring_easy_01",
+        "source_index": 15,
+        "adapter_args": {
+          "category": "cross_file_refactoring"
+        }
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-034",
+      "phase": "evolve",
+      "order": 87,
+      "source": {
+        "benchmark": "locobench",
+        "split": "python",
+        "task_id": "python_blockchain_nft_medium_035_feature_implementation_expert_01",
+        "source_index": 14,
+        "adapter_args": {
+          "category": "feature_implementation"
+        }
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-045",
+      "phase": "evolve",
+      "order": 88,
+      "source": {
+        "benchmark": "locobench",
+        "split": "python",
+        "task_id": "python_api_graphql_expert_079_cross_file_refactoring_easy_01",
+        "source_index": 5,
+        "adapter_args": {
+          "category": "cross_file_refactoring"
+        }
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-070",
+      "phase": "evolve",
+      "order": 89,
+      "source": {
+        "benchmark": "locabench",
+        "split": "evolve_96k",
+        "task_id": "SetConfCrDdlS2LEnv_seed101",
+        "source_index": 10,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-079",
+      "phase": "evolve",
+      "order": 90,
+      "source": {
+        "benchmark": "beyondswe",
+        "split": "crossrepo",
+        "task_id": "pylons_pyramid_pr2874",
+        "source_index": 3,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-028",
+      "phase": "evolve",
+      "order": 91,
+      "source": {
+        "benchmark": "locobench",
+        "split": "python",
+        "task_id": "python_api_microservice_medium_044_feature_implementation_medium_01",
+        "source_index": 8,
+        "adapter_args": {
+          "category": "feature_implementation"
+        }
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-072",
+      "phase": "evolve",
+      "order": 92,
+      "source": {
+        "benchmark": "locabench",
+        "split": "evolve_96k",
+        "task_id": "WoocommerceNewWelcomeS2LEnv_seed101",
+        "source_index": 12,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-031",
+      "phase": "evolve",
+      "order": 93,
+      "source": {
+        "benchmark": "locobench",
+        "split": "python",
+        "task_id": "python_api_rest_expert_042_feature_implementation_hard_01",
+        "source_index": 11,
+        "adapter_args": {
+          "category": "feature_implementation"
+        }
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-068",
+      "phase": "evolve",
+      "order": 94,
+      "source": {
+        "benchmark": "locabench",
+        "split": "evolve_96k",
+        "task_id": "FilterLowSellingProductsS2LEnv_seed101",
+        "source_index": 8,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-029",
+      "phase": "evolve",
+      "order": 95,
+      "source": {
+        "benchmark": "locobench",
+        "split": "python",
+        "task_id": "python_api_rest_easy_006_feature_implementation_hard_01",
+        "source_index": 9,
+        "adapter_args": {
+          "category": "feature_implementation"
+        }
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-064",
+      "phase": "evolve",
+      "order": 96,
+      "source": {
+        "benchmark": "locabench",
+        "split": "evolve_96k",
+        "task_id": "CanvasListTestS2LEnv_seed101",
+        "source_index": 4,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-081",
+      "phase": "evolve",
+      "order": 97,
+      "source": {
+        "benchmark": "beyondswe",
+        "split": "crossrepo",
+        "task_id": "pylons_colander_pr288",
+        "source_index": 5,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-016",
+      "phase": "evolve",
+      "order": 98,
+      "source": {
+        "benchmark": "gaia",
+        "split": "train_20",
+        "task_id": "ebbc1f13-d24d-40df-9068-adcf735b4240",
+        "source_index": 16,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-041",
+      "phase": "evolve",
+      "order": 99,
+      "source": {
+        "benchmark": "locobench",
+        "split": "python",
+        "task_id": "python_api_gateway_hard_009_cross_file_refactoring_expert_01",
+        "source_index": 1,
+        "adapter_args": {
+          "category": "cross_file_refactoring"
+        }
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-083",
+      "phase": "evolve",
+      "order": 100,
+      "source": {
+        "benchmark": "beyondswe",
+        "split": "crossrepo",
+        "task_id": "iamconsortium_units_pr45",
+        "source_index": 7,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-115",
+      "phase": "evolve",
+      "order": 101,
+      "source": {
+        "benchmark": "beyondswe",
+        "split": "depmigrate",
+        "task_id": "narwhals-dev_narwhals_pr2680",
+        "source_index": 19,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-061",
+      "phase": "evolve",
+      "order": 102,
+      "source": {
+        "benchmark": "locabench",
+        "split": "evolve_96k",
+        "task_id": "ApplyPhDEmailS2LEnv_seed102",
+        "source_index": 1,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-077",
+      "phase": "evolve",
+      "order": 103,
+      "source": {
+        "benchmark": "beyondswe",
+        "split": "crossrepo",
+        "task_id": "pylons_pyramid_pr1373",
+        "source_index": 1,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-066",
+      "phase": "evolve",
+      "order": 104,
+      "source": {
+        "benchmark": "locabench",
+        "split": "evolve_96k",
+        "task_id": "CourseAssistantS2LEnv_seed101",
+        "source_index": 6,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-075",
+      "phase": "evolve",
+      "order": 105,
+      "source": {
+        "benchmark": "locabench",
+        "split": "evolve_96k",
+        "task_id": "WoocommerceStockAlertS2LEnv_seed102",
+        "source_index": 15,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-053",
+      "phase": "evolve",
+      "order": 106,
+      "source": {
+        "benchmark": "locobench",
+        "split": "python",
+        "task_id": "python_blockchain_defi_expert_034_cross_file_refactoring_medium_01",
+        "source_index": 13,
+        "adapter_args": {
+          "category": "cross_file_refactoring"
+        }
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-087",
+      "phase": "evolve",
+      "order": 107,
+      "source": {
+        "benchmark": "beyondswe",
+        "split": "crossrepo",
+        "task_id": "pylons_pyramid_pr3034",
+        "source_index": 11,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-005",
+      "phase": "evolve",
+      "order": 108,
+      "source": {
+        "benchmark": "gaia",
+        "split": "train_20",
+        "task_id": "2d83110e-a098-4ebb-9987-066c06fa42d0",
+        "source_index": 5,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-096",
+      "phase": "evolve",
+      "order": 109,
+      "source": {
+        "benchmark": "beyondswe",
+        "split": "depmigrate",
+        "task_id": "simonw_llm_pr775",
+        "source_index": 0,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-049",
+      "phase": "evolve",
+      "order": 110,
+      "source": {
+        "benchmark": "locobench",
+        "split": "python",
+        "task_id": "python_api_rest_easy_006_cross_file_refactoring_hard_01",
+        "source_index": 9,
+        "adapter_args": {
+          "category": "cross_file_refactoring"
+        }
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-043",
+      "phase": "evolve",
+      "order": 111,
+      "source": {
+        "benchmark": "locobench",
+        "split": "python",
+        "task_id": "python_api_graphql_easy_043_cross_file_refactoring_expert_01",
+        "source_index": 3,
+        "adapter_args": {
+          "category": "cross_file_refactoring"
+        }
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-025",
+      "phase": "evolve",
+      "order": 112,
+      "source": {
+        "benchmark": "locobench",
+        "split": "python",
+        "task_id": "python_api_graphql_expert_079_feature_implementation_easy_01",
+        "source_index": 5,
+        "adapter_args": {
+          "category": "feature_implementation"
+        }
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-069",
+      "phase": "evolve",
+      "order": 113,
+      "source": {
+        "benchmark": "locabench",
+        "split": "evolve_96k",
+        "task_id": "FilterLowSellingProductsS2LEnv_seed102",
+        "source_index": 9,
+        "adapter_args": {}
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-027",
+      "phase": "evolve",
+      "order": 114,
+      "source": {
+        "benchmark": "locobench",
+        "split": "python",
+        "task_id": "python_api_microservice_medium_008_feature_implementation_hard_01",
+        "source_index": 7,
+        "adapter_args": {
+          "category": "feature_implementation"
+        }
+      }
+    },
+    {
+      "mixed_task_id": "mixed-evolve-042",
+      "phase": "evolve",
+      "order": 115,
+      "source": {
+        "benchmark": "locobench",
+        "split": "python",
+        "task_id": "python_api_gateway_hard_081_cross_file_refactoring_easy_01",
+        "source_index": 2,
+        "adapter_args": {
+          "category": "cross_file_refactoring"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+name: context_analyst
+role: context_analyst
+description: "Analyzes local attachments or repository structure, traces dependencies, and returns reproducible structural evidence before implementation."
+model: gpt-5.6-luna
+temperature: 0.2
+max_tokens: 32768
+max_steps: 140
+tools:
+  - read_file
+  - bash
+  - docker_bash
+  - loca_mcp
