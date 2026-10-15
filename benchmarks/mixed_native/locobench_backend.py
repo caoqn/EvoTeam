@@ -8,11 +8,13 @@ from collections import defaultdict
 _BASE_DIR = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(_BASE_DIR))
 
+from benchmarks.mixed_native.data_paths import mixed_data_root
+
 from benchmarks.adapter import BenchmarkAdapter, EvalResult, EnvContext
 from core.execution_policy import BoundExecutionPolicy, ExecutionPolicy
 
 
-LOCOBENCH_DIR = _BASE_DIR / "benchmarks" / "LoCoBench"
+LOCOBENCH_DIR = mixed_data_root(_BASE_DIR) / "benchmarks" / "LoCoBench"
 DATA_DIR = LOCOBENCH_DIR / "data"
 SCENARIOS_DIR = DATA_DIR / "output" / "scenarios"
 GENERATED_DIR = DATA_DIR / "generated"
@@ -351,6 +353,7 @@ class LoCoBenchAdapter(BenchmarkAdapter):
     aggregate_handoff_reflection_by_pair = False
     default_timeout = 1800.0
     default_evolve_timeout = 1800.0
+    default_max_messages = 400
     default_max_cost = 2.40
     default_split = "python_easy_medium"
     split_choices = list(SPLIT_MAP.keys())

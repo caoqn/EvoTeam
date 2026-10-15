@@ -18,6 +18,7 @@ for path in (str(THIS_DIR), str(PROJECT_ROOT)):
 
 from core.result_manifest import ResultManifest
 from core.run_manager import RunManager
+from benchmarks.mixed_native.data_paths import mixed_data_root
 from mixed_benchmark_manifest import MixedBenchmarkManifest, MixedTask
 from task_wrapper import MixedTaskWrapper
 
@@ -31,22 +32,25 @@ class MixedScheduler:
         team_name: str | None = None,
         run_id: str | None = None,
         resume: bool = False,
+        phase: str = "evolve",
     ):
         self.manifest = manifest
+        self.phase = phase
         self.wrapper = MixedTaskWrapper(manifest)
-        required_paths = {"tool implementations": PROJECT_ROOT / "tools"}
+        data_root = mixed_data_root(PROJECT_ROOT)
+        required_paths = {"tool implementations": data_root / "tools"}
         if "gaia" in manifest.active_benchmarks:
-            required_paths["GAIA data"] = PROJECT_ROOT / "data" / "gaia"
+            required_paths["GAIA data"] = data_root / "data" / "gaia"
         if "locobench" in manifest.active_benchmarks:
-            required_paths["LoCoBench installation"] = PROJECT_ROOT / "benchmarks" / "LoCoBench"
+            required_paths["LoCoBench installation"] = data_root / "benchmarks" / "LoCoBench"
         if "locabench" in manifest.active_benchmarks:
-            required_paths["LOCA-Bench installation"] = PROJECT_ROOT / "benchmarks" / "LOCA-bench"
+            required_paths["LOCA-Bench installation"] = data_root / "benchmarks" / "LOCA-bench"
         missing = [name for name, path in required_paths.items() if not path.exists()]
         if "beyondswe" in manifest.active_benchmarks:
             configured = os.environ.get("BEYONDSWE_DATA_FILE", "").strip()
             candidates = [Path(configured).expanduser()] if configured else [
-                PROJECT_ROOT / "benchmarks" / "BeyondSWE" / "beyondswe.jsonl",
-                PROJECT_ROOT / "benchmarks" / "BeyondSWE" / "data" / "beyondswe.jsonl",
+                data_root / "benchmarks" / "BeyondSWE" / "beyondswe.jsonl",
+                data_root / "benchmarks" / "BeyondSWE" / "data" / "beyondswe.jsonl",
             ]
             if not any(path.is_file() for path in candidates):
                 missing.append("BeyondSWE JSONL")
@@ -68,7 +72,11 @@ class MixedScheduler:
         pool_mode = (pool_payload.get("settings") or {}).get(
             "orchestration_mode", "evoteam"
         )
-        if self.team_name != declared_team and pool_mode != "baseline_shared":
+        if (
+            self.team_name != declared_team
+            and pool_mode != "baseline_shared"
+            and phase != "test"
+        ):
             raise ValueError(
                 f"MIXED-BENCHMARK requires the manifest shared team {declared_team!r}, "
                 "unless the explicitly selected pool declares "
@@ -269,6 +277,12 @@ class MixedScheduler:
                 continue
             if row.get("mixed_task_id"):
                 rows.append(row)
+        expected_test_tasks: dict[str, int] = defaultdict(int)
+        expected_test_task_ids: dict[str, list[str]] = defaultdict(list)
+        for task in self.manifest.tasks_for_phase("test", enabled_only=False):
+            if task.enabled:
+                expected_test_tasks[task.source.benchmark] += 1
+                expected_test_task_ids[task.source.benchmark].append(task.mixed_task_id)
         by_benchmark: dict[str, list[dict[str, Any]]] = defaultdict(list)
         for row in rows:
             by_benchmark[str(row["source_benchmark"])].append(row)
@@ -281,6 +295,7 @@ class MixedScheduler:
             ]
             benchmark_summary[benchmark] = {
                 "assigned": len(benchmark_rows),
+                "expected_test_tasks": expected_test_tasks.get(benchmark, 0),
                 "eligible": len(eligible),
                 "infrastructure_failures": sum(
                     bool(row.get("infrastructure_failure"))
@@ -293,6 +308,10 @@ class MixedScheduler:
                 "native_avg_score": round(
                     sum(row.get("native_score", 0.0) for row in eligible) / len(eligible), 4
                 ) if eligible else None,
+                "native_score_sum": round(
+                    sum(row.get("native_score", 0.0) for row in eligible), 6
+                ),
+                "correct_count": sum(bool(row.get("is_correct")) for row in eligible),
                 "success_rate": round(
                     sum(bool(row.get("is_correct")) for row in eligible) / len(eligible), 4
                 ) if eligible else None,
@@ -305,6 +324,22 @@ class MixedScheduler:
             "records": len(rows),
             "team_versions": self.run_mgr.list_team_versions(),
             "benchmark_summary": benchmark_summary,
+            "expected_test_tasks_by_benchmark": dict(expected_test_tasks),
+            "expected_test_task_ids_by_benchmark": {
+                benchmark: task_ids
+                for benchmark, task_ids in expected_test_task_ids.items()
+            },
+            "test_task_results": [
+                {
+                    "mixed_task_id": row["mixed_task_id"],
+                    "source_benchmark": row["source_benchmark"],
+                    "native_score": float(row.get("native_score", 0.0) or 0.0),
+                    "is_correct": bool(row.get("is_correct", False)),
+                    "infrastructure_failure": bool(row.get("infrastructure_failure", False)),
+                    "official_score_eligible": bool(row.get("official_score_eligible", True)),
+                }
+                for row in rows if row.get("phase") == "test"
+            ],
             "macro_success_rate": round(sum(rates) / len(rates), 4) if rates else None,
             "result_manifest": str(self.ledger.path),
         }
@@ -322,6 +357,114 @@ class MixedScheduler:
         return summary
 
 
+def aggregate_rollout_summaries(summaries: list[dict[str, Any]]) -> dict[str, Any]:
+    if not summaries:
+        return {"rollouts": 0, "avg_at": 0, "benchmark_summary": {}}
+    expected: dict[str, int] = {}
+    expected_ids: dict[str, set[str]] = {}
+    task_results: list[dict[tuple[str, str], dict[str, Any]]] = []
+    for summary in summaries:
+        for benchmark, count in (summary.get("expected_test_tasks_by_benchmark") or {}).items():
+            expected[str(benchmark)] = max(expected.get(str(benchmark), 0), int(count))
+        for benchmark, ids in (summary.get("expected_test_task_ids_by_benchmark") or {}).items():
+            benchmark = str(benchmark)
+            ids = {str(task_id) for task_id in ids}
+            if benchmark in expected_ids and expected_ids[benchmark] != ids:
+                raise ValueError(f"rollouts disagree on expected test task IDs for {benchmark}")
+            expected_ids[benchmark] = ids
+        indexed = {}
+        for row in summary.get("test_task_results", []):
+            key = (str(row.get("source_benchmark", "")), str(row.get("mixed_task_id", "")))
+            if key in indexed:
+                raise ValueError(f"duplicate test result for {key} in run {summary.get('run_id')}")
+            indexed[key] = row
+        task_results.append(indexed)
+    for benchmark, ids in expected_ids.items():
+        if benchmark in expected and expected[benchmark] != len(ids):
+            raise ValueError(
+                f"expected task count and task IDs disagree for {benchmark}: "
+                f"{expected[benchmark]} vs {len(ids)}"
+            )
+        expected[benchmark] = len(ids)
+    benchmark_summary: dict[str, Any] = {}
+    rates: list[float] = []
+    for benchmark, expected_count in sorted(expected.items()):
+        candidates: dict[str, list[dict[str, Any]]] = defaultdict(list)
+        infra_count = 0
+        valid_per_rollout = []
+        per_rollout_score = []
+        per_rollout_success = []
+        expected_for_benchmark = expected_ids.get(benchmark)
+        for indexed in task_results:
+            count = 0
+            rollout_scores = []
+            rollout_correct = []
+            candidate_ids = expected_for_benchmark
+            if candidate_ids is None:
+                candidate_ids = {
+                    task_id for source_benchmark, task_id in indexed
+                    if source_benchmark == benchmark
+                }
+            for task_id in candidate_ids:
+                row = indexed.get((benchmark, task_id))
+                if row is None:
+                    continue
+                if row.get("infrastructure_failure"):
+                    infra_count += 1
+                elif row.get("official_score_eligible", True):
+                    candidates[task_id].append(row)
+                    rollout_scores.append(float(row.get("native_score", 0.0)))
+                    rollout_correct.append(bool(row.get("is_correct")))
+                    count += 1
+            valid_per_rollout.append(count)
+            per_rollout_score.append(
+                sum(rollout_scores) / len(rollout_scores) if rollout_scores else None
+            )
+            per_rollout_success.append(
+                sum(rollout_correct) / len(rollout_correct) if rollout_correct else None
+            )
+        expected_for_benchmark = expected_ids.get(benchmark)
+        task_ids = expected_for_benchmark if expected_for_benchmark is not None else set(candidates)
+        complete = [
+            candidates[task_id]
+            for task_id in task_ids
+            if len(candidates.get(task_id, [])) == len(summaries)
+        ]
+        task_avg_scores = [
+            sum(float(row.get("native_score", 0.0)) for row in rows) / len(rows)
+            for rows in complete
+        ]
+        task_avg_correct = [
+            sum(bool(row.get("is_correct")) for row in rows) / len(rows)
+            for rows in complete
+        ]
+        coverage_denominator = expected_count * len(summaries)
+        eligible = sum(valid_per_rollout)
+        benchmark_summary[benchmark] = {
+            "expected_tasks_per_rollout": expected_count,
+            "expected_task_ids": sorted(task_ids),
+            "complete_avg_at_tasks": len(complete),
+            "incomplete_tasks": max(0, expected_count - len(complete)),
+            "infrastructure_failures": infra_count,
+            "per_rollout_eligible_tasks": valid_per_rollout,
+            "per_rollout_native_scores": per_rollout_score,
+            "per_rollout_success_rates": per_rollout_success,
+            "eligible": eligible,
+            "rollout_coverage": round(eligible / coverage_denominator, 4) if coverage_denominator else 0.0,
+            "native_avg_score": round(sum(task_avg_scores) / len(task_avg_scores), 4) if task_avg_scores else None,
+            "success_rate": round(sum(task_avg_correct) / len(task_avg_correct), 4) if task_avg_correct else None,
+        }
+        if task_avg_correct:
+            rates.append(sum(task_avg_correct) / len(task_avg_correct))
+    return {
+        "rollouts": len(summaries),
+        "avg_at": len(summaries),
+        "run_ids": [summary.get("run_id") for summary in summaries],
+        "benchmark_summary": benchmark_summary,
+        "macro_success_rate": round(sum(rates) / len(rates), 4) if rates else None,
+    }
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description='Sequential MIXED-BENCHMARK scheduler.\n\nThe scheduler owns ordering, one shared RunManager/team lineage, and the\ncross-suite ledger. Native adapters still own environment setup, task\nconstruction, output contracts, artifact checks, and evaluation.\n')
     parser.add_argument("--manifest", type=Path, required=True)
@@ -334,10 +477,19 @@ def main() -> int:
         "--max-tasks", type=int, default=None,
         help="Run only the first N tasks in the selected phase.",
     )
+    parser.add_argument(
+        "--rollout", type=int, default=None,
+        help="Independent test rollouts; defaults to 3 for --phase test and 1 otherwise.",
+    )
     args = parser.parse_args()
 
     if args.max_tasks is not None and args.max_tasks < 1:
         parser.error("--max-tasks must be positive")
+    rollout = args.rollout if args.rollout is not None else (3 if args.phase == "test" else 1)
+    if rollout < 1:
+        parser.error("--rollout must be positive")
+    if rollout > 1 and args.phase != "test":
+        parser.error("--rollout > 1 is supported only for --phase test")
 
     manifest = MixedBenchmarkManifest.load(args.manifest)
     if args.dry_run:
@@ -348,15 +500,47 @@ def main() -> int:
             for task in tasks:
                 print(f"{phase}\t{task.order}\t{task.mixed_task_id}\t{task.source.benchmark}")
         return 0
-    scheduler = MixedScheduler(
-        manifest,
-        team_name=args.team,
-        run_id=args.run_id,
-        resume=args.resume,
+    if rollout == 1:
+        scheduler = MixedScheduler(
+            manifest,
+            team_name=args.team,
+            run_id=args.run_id,
+            resume=args.resume,
+            phase=args.phase,
+        )
+        summary = asyncio.run(scheduler.run(args.phase, max_tasks=args.max_tasks))
+        print(json.dumps(summary, ensure_ascii=False, indent=2))
+        return 0
+
+    base_run_id = args.run_id or datetime.now().strftime("%Y%m%d_%H%M%S_mixed_test")
+    summaries = []
+    for index in range(1, rollout + 1):
+        run_id = f"{base_run_id}_r{index}"
+        scheduler = MixedScheduler(
+            manifest,
+            team_name=args.team,
+            run_id=run_id,
+            resume=args.resume,
+            phase=args.phase,
+        )
+        summaries.append(asyncio.run(scheduler.run(args.phase, max_tasks=args.max_tasks)))
+    aggregate = aggregate_rollout_summaries(summaries)
+    aggregate["suite_id"] = manifest.suite_id
+    aggregate["team"] = args.team or manifest.shared_evolution["team_name"]
+    aggregate["complete"] = all(
+        data["complete_avg_at_tasks"] == data["expected_tasks_per_rollout"]
+        and all(value == data["expected_tasks_per_rollout"] for value in data["per_rollout_eligible_tasks"])
+        for data in aggregate["benchmark_summary"].values()
     )
-    summary = asyncio.run(scheduler.run(args.phase, max_tasks=args.max_tasks))
-    print(json.dumps(summary, ensure_ascii=False, indent=2))
-    return 0
+    aggregate_path = PROJECT_ROOT / "runs" / "aggregates" / f"{base_run_id}_avg{rollout}.json"
+    aggregate_path.parent.mkdir(parents=True, exist_ok=True)
+    aggregate_path.write_text(
+        json.dumps(aggregate, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    aggregate["aggregate_path"] = str(aggregate_path)
+    print(json.dumps(aggregate, ensure_ascii=False, indent=2))
+    return 0 if aggregate["complete"] else 1
 
 
 if __name__ == "__main__":

@@ -9,13 +9,15 @@ from collections import defaultdict
 _BASE_DIR = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(_BASE_DIR))
 
+from benchmarks.mixed_native.data_paths import mixed_data_root
+
 from benchmarks.adapter import BenchmarkAdapter, EvalResult, EnvContext
 from core.execution_policy import BoundExecutionPolicy, ExecutionPolicy
 from core.output_contract import GAIA_OUTPUT_CONTRACT
 
 
 
-DATA_DIR = _BASE_DIR / "data" / "gaia"
+DATA_DIR = mixed_data_root(_BASE_DIR) / "data" / "gaia"
 VAL_FILES_DIR = DATA_DIR / "val_files"
 
 SPLIT_MAP = {
@@ -171,6 +173,7 @@ class GAIAAdapter(BenchmarkAdapter):
     aggregate_handoff_reflection_by_pair = False
     default_timeout = 900.0
     default_evolve_timeout = 900.0
+    default_max_messages = 300
     default_max_cost = 2.40
     default_split = "all"
     split_choices = list(SPLIT_MAP.keys())

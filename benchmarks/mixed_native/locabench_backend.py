@@ -12,7 +12,9 @@ from typing import Any
 _BASE_DIR = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(_BASE_DIR))
 
-LOCABENCH_DIR = _BASE_DIR / "benchmarks" / "LOCA-bench"
+from benchmarks.mixed_native.data_paths import mixed_data_root
+
+LOCABENCH_DIR = mixed_data_root(_BASE_DIR) / "benchmarks" / "LOCA-bench"
 sys.path.insert(0, str(LOCABENCH_DIR))
 sys.path.insert(0, str(LOCABENCH_DIR / "mcp_convert"))
 
@@ -748,8 +750,9 @@ class LOCABenchAdapter(BenchmarkAdapter):
     default_team = "pool_EvoTeam"
     preserve_timeout_handoff_trace = False
     aggregate_handoff_reflection_by_pair = False
-    default_timeout = 7200.0
-    default_evolve_timeout = 7200.0
+    default_timeout = 3200.0
+    default_evolve_timeout = 3200.0
+    default_max_messages = 600
     default_max_cost = 12.0
     default_split = "128k"
     split_choices = CONTEXT_LEVELS
@@ -874,16 +877,7 @@ class LOCABenchAdapter(BenchmarkAdapter):
 
     PER_SPLIT_MAX_COST = {split: 12.0 for split in CONTEXT_LEVELS}
 
-    PER_SPLIT_TIMEOUT = {
-        "8k": 1800.0,
-        "16k": 1800.0,
-        "32k": 3600.0,
-        "64k": 3600.0,
-        "96k": 5400.0,
-        "128k": 7200.0,
-        "256k": 7200.0,
-        "evolve_96k": 7200.0,
-    }
+    PER_SPLIT_TIMEOUT = {split: 3200.0 for split in CONTEXT_LEVELS}
 
     def cli(self) -> None:
         parser = self.build_parser()
@@ -998,26 +992,10 @@ Rules for this fallback execution:
             for t in tool_catalog
         )
 
-        stock_selection_guidance = ""
-        if task_name == "WoocommerceStockAlertS2LEnv":
-            stock_selection_guidance = """
-## WooCommerce stock-selection rule
-
-For stock-alert tasks, if the task specifies a per-product `stock_threshold`,
-that predicate is authoritative: enumerate the complete product population
-(using pagination where needed) and select products with
-`stock_quantity < stock_threshold` (strictly less than). Do not use
-`woo_reports_low_stock` or any fixed `<10` low-stock report as the target
-population; such a report is only supplementary evidence and may use a
-different filter. Reconcile the complete selected ID set before writing the
-sheet or sending notifications.
-"""
-
         task = f"""## Task: {task_name} ({context_level})
 
 
 {task_instruction}
-{stock_selection_guidance}
 
 
 You can interact with the environment using the `loca_mcp` tool. The following MCP tools are available:

@@ -501,10 +501,16 @@ class BenchmarkAdapter(ABC):
     default_team: str = ""
     default_timeout: float = 300.0
     default_evolve_timeout: float = 600.0
+    default_max_messages: int = 200
     default_max_cost: float = 0.0
     default_split: str = ""
     split_choices: list[str] | None = None
     aggregate_handoff_reflection_by_pair: bool = False
+
+    def max_messages_for(self, split: str, evolve: bool) -> int:
+        del split, evolve
+        return int(self.default_max_messages)
+
     def output_contract(self):
         return output_contract_from_settings({}, self.benchmark_name)
 
@@ -780,6 +786,9 @@ class BenchmarkAdapter(ABC):
                 })
                 session.team_info["team_selection"] = team_selection.to_dict()
                 session._write_meta("running")
+            max_messages = self.max_messages_for(
+                str(getattr(args, "split", "") or ""), evolve,
+            )
             runner = Runner(
                 pool_dir=runtime_team_dir,
                 chairman_name=pool.chairman_name,
@@ -790,7 +799,7 @@ class BenchmarkAdapter(ABC):
                 budget_started_at=time.time() - (
                     time.monotonic() - case_budget_started_at
                 ),
-                max_messages=int(pool.settings.get("max_messages", 200)),
+                max_messages=max_messages,
                 enable_reflection=evolve,
                 max_cost_usd=float(getattr(args, "max_cost", 0) or 0),
                 reflection_phase_timeout=float(pool.settings.get("reflection_phase_timeout", 0)),
@@ -1130,6 +1139,9 @@ class BenchmarkAdapter(ABC):
             record["runtime_budget"] = {
                 "task_seconds": result.metadata.get("task_seconds"),
                 "task_budget_seconds": result.metadata.get("task_budget_seconds"),
+                "max_messages": max_messages,
+                "max_cost_usd": float(getattr(args, "max_cost", 0) or 0),
+                "evolve": bool(evolve),
             }
             record["api_reliability"] = result.metadata.get("api_reliability", {})
         else:

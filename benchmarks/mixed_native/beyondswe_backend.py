@@ -7,6 +7,8 @@ from collections import defaultdict
 _BASE_DIR = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(_BASE_DIR))
 
+from benchmarks.mixed_native.data_paths import mixed_data_root
+
 from benchmarks.adapter import BenchmarkAdapter, EvalResult, EnvContext
 from core.execution_policy import BoundExecutionPolicy, ExecutionPolicy
 import importlib
@@ -16,9 +18,10 @@ def _docker_bash_tool():
     return importlib.import_module("tools.docker_bash")
 
 
-DATA_DIR = _BASE_DIR / "benchmarks" / "BeyondSWE" / "data"
+_DATA_ROOT = mixed_data_root(_BASE_DIR)
+DATA_DIR = _DATA_ROOT / "benchmarks" / "BeyondSWE" / "data"
 DATA_FILE = DATA_DIR / "beyondswe.jsonl"
-OFFICIAL_DATA_FILE = _BASE_DIR / "benchmarks" / "BeyondSWE" / "beyondswe.jsonl"
+OFFICIAL_DATA_FILE = _DATA_ROOT / "benchmarks" / "BeyondSWE" / "beyondswe.jsonl"
 
 SUPPORTED_TASK_TYPES = {"CrossRepo", "DomainFix", "DepMigrate"}
 
@@ -1151,6 +1154,7 @@ class BeyondSWEAdapter(BenchmarkAdapter):
     aggregate_handoff_reflection_by_pair = False
     default_timeout = 1800.0
     default_evolve_timeout = 1800.0
+    default_max_messages = 600
     default_max_cost = 2.40
     default_split = "all"
     split_choices = list(SPLIT_MAP.keys())
