@@ -39,7 +39,7 @@ Requirements:
 Create a virtual environment and install the package:
 
 ```bash
-cd MIX_COOP_CLEAN
+cd EvoTeam
 python3 -m venv .venv
 source .venv/bin/activate
 python3 -m pip install --upgrade pip
@@ -118,7 +118,7 @@ Obtain the benchmark data from the official project sources:
 By default, benchmark assets are resolved relative to the repository root:
 
 ```text
-MIX_COOP_CLEAN/
+EvoTeam/
 ├── tools/
 ├── data/
 │   └── gaia/
@@ -180,7 +180,7 @@ install this package.
 Place the tool implementation directory at the repository root:
 
 ```text
-MIX_COOP_CLEAN/
+EvoTeam/
 ├── tools/
 │   ├── __init__.py
 │   ├── bash.py
@@ -382,7 +382,7 @@ reflection calls.
 ## Project Structure
 
 ```text
-MIX_COOP_CLEAN/
+EvoTeam/
 ├── agents/pool_EvoTeam/              # Shared agent pool and constitution
 ├── core/                              # Runtime, formation, reflection, persistence
 ├── benchmarks/
