@@ -263,8 +263,8 @@ def _render_timeline(events, t0, agents_seen, agent_color, stats):
         elif etype in ("committee.phase_change", "runner.phase_change"):
             to_p = data.get("to", "")
             phase_icons = {
-                "l1_reflection": "🔵 L1 Agent Reflection",
-                "l2_reflection": "🟢 L2 Communication Reflection",
+                "l1_reflection": "🔵 Agent Self-Reflection",
+                "l2_reflection": "🟢 Teammate Profile Reflection",
                 "terminated": "⬛ Terminated",
             }
             label = phase_icons.get(to_p, to_p)
@@ -278,33 +278,37 @@ def _render_timeline(events, t0, agents_seen, agent_color, stats):
             phase = data.get("phase", "")
             restarted = data.get("restarted", [])
             refreshed = data.get("refreshed", [])
+            phase_label = {
+                "l1_reflection": "Agent Self-Reflection",
+                "l2_reflection": "Teammate Profile Reflection",
+            }.get(phase, phase)
             parts = []
             if restarted:
                 parts.append(f"restarted=[{', '.join(restarted)}]")
             if refreshed:
                 parts.append(f"refreshed=[{', '.join(refreshed)}]")
-            print(f"  {_dim(t_str)}  {_c('magenta', '🔄 restart for')} {phase}: {' '.join(parts)}")
+            print(f"  {_dim(t_str)}  {_c('magenta', '🔄 restart for')} {phase_label}: {' '.join(parts)}")
 
         elif etype == "reflection.l1.patch":
-            print(f"  {_dim(t_str)}  {_c(color, agent):>22} 📝 L1 patch")
+            print(f"  {_dim(t_str)}  {_c(color, agent):>22} 📝 Self-reflection patch")
 
         elif etype == "reflection.l1.skill":
             skill = data.get("skill_name", "")
-            print(f"  {_dim(t_str)}  {_c(color, agent):>22} 🔧 L1 skill: {skill}")
+            print(f"  {_dim(t_str)}  {_c(color, agent):>22} 🔧 Self-reflection skill: {skill}")
 
         elif etype == "reflection.l1.skip":
-            print(f"  {_dim(t_str)}  {_c(color, agent):>22} ⏭ L1 skip")
+            print(f"  {_dim(t_str)}  {_c(color, agent):>22} ⏭ Self-reflection complete")
 
         elif etype == "reflection.l2.profile":
             teammate = data.get("teammate", "")
-            print(f"  {_dim(t_str)}  {_c(color, agent):>22} 👤 L2 profile → {teammate}")
+            print(f"  {_dim(t_str)}  {_c(color, agent):>22} 👤 Teammate profile → {teammate}")
 
         elif etype == "reflection.l2.correlation":
             partner = data.get("partner", "")
-            print(f"  {_dim(t_str)}  {_c(color, agent):>22} 🤝 L2 correlation ↔ {partner}")
+            print(f"  {_dim(t_str)}  {_c(color, agent):>22} 🤝 Profile correlation ↔ {partner}")
 
         elif etype == "reflection.l2.skip":
-            print(f"  {_dim(t_str)}  {_c(color, agent):>22} ⏭ L2 skip")
+            print(f"  {_dim(t_str)}  {_c(color, agent):>22} ⏭ Profile reflection complete")
 
         elif etype == "committee.reflection_abort":
             reason = data.get("reason", "")
@@ -472,8 +476,8 @@ def render_trace(
     current_phase = "task_execution"
 
     _PHASE_LABELS = {
-        "l1_reflection": " [L1]",
-        "l2_reflection": " [L2]",
+        "l1_reflection": " [Self-Reflection]",
+        "l2_reflection": " [Profiles]",
     }
 
     def _phase_label() -> str:
@@ -593,17 +597,20 @@ def render_trace(
             to_p = data.get("to", "")
             current_phase = to_p
             phase_icons = {
-                "l1_reflection": "🔵 L1 Agent Reflection",
-                "l2_reflection": "🟢 L2 Communication Reflection",
+                "l1_reflection": "🔵 Agent Self-Reflection",
+                "l2_reflection": "🟢 Teammate Profile Reflection",
                 "terminated": "⬛ Terminated",
             }
             label = phase_icons.get(to_p, to_p)
             print(f"\n{_dim(f'[{elapsed_str}]')} "
                   f"{_c('magenta', _bold(f'━━━ PHASE: {label} ━━━'))}")
-            for key in ("l1_completed", "l2_completed"):
+            for key, label in (
+                ("l1_completed", "self-reflection completed"),
+                ("l2_completed", "profile reflection completed"),
+            ):
                 completed = data.get(key, [])
                 if completed:
-                    print(f"      completed: {', '.join(completed)}")
+                    print(f"      {label}: {', '.join(completed)}")
             continue
 
         if etype in ("session.start", "session.end"):
@@ -795,7 +802,7 @@ def render_trace(
         if etype == "reflection.l1.patch":
             patch = data.get("patch", "")
             print(f"\n{_dim(f'[{elapsed_str}]')} "
-                  f"{_c('magenta', f'📝 L1 PATCH')} by {_bold(agent)}")
+                  f"{_c('magenta', f'📝 SELF-REFLECTION PATCH')} by {_bold(agent)}")
             if patch:
                 _print_indented(patch, indent=6)
             continue
@@ -803,7 +810,7 @@ def render_trace(
         if etype == "reflection.l1.skill":
             skill_name = data.get("skill_name", "")
             print(f"\n{_dim(f'[{elapsed_str}]')} "
-                  f"{_c('magenta', f'🔧 L1 SKILL')} by {_bold(agent)}: {skill_name}")
+                  f"{_c('magenta', f'🔧 SELF-REFLECTION SKILL')} by {_bold(agent)}: {skill_name}")
             continue
 
         if etype == "reflection.l1.skip":
@@ -811,20 +818,20 @@ def render_trace(
             completed = data.get("completed", [])
             total = data.get("total", 0)
             print(f"\n{_dim(f'[{elapsed_str}]')} "
-                  f"{_c('magenta', f'⏭ L1 SKIP')} by {_bold(agent)}: {reason}")
+                  f"{_c('magenta', f'⏭ SELF-REFLECTION COMPLETE')} by {_bold(agent)}: {reason}")
             print(f"      progress: {len(completed)}/{total} completed: {', '.join(completed)}")
             continue
 
         if etype == "reflection.l2.profile":
             teammate = data.get("teammate", "")
             print(f"\n{_dim(f'[{elapsed_str}]')} "
-                  f"{_c('cyan', f'👤 L2 PROFILE')} by {_bold(agent)} → {teammate}")
+                  f"{_c('cyan', f'👤 TEAMMATE PROFILE')} by {_bold(agent)} → {teammate}")
             continue
 
         if etype == "reflection.l2.correlation":
             partner = data.get("partner", "")
             print(f"\n{_dim(f'[{elapsed_str}]')} "
-                  f"{_c('cyan', f'🤝 L2 CORRELATION')} by {_bold(agent)} ↔ {partner}")
+                  f"{_c('cyan', f'🤝 PROFILE CORRELATION')} by {_bold(agent)} ↔ {partner}")
             continue
 
         if etype == "reflection.l2.skip":
@@ -832,7 +839,7 @@ def render_trace(
             completed = data.get("completed", [])
             total = data.get("total", 0)
             print(f"\n{_dim(f'[{elapsed_str}]')} "
-                  f"{_c('cyan', f'⏭ L2 SKIP')} by {_bold(agent)}: {reason}")
+                  f"{_c('cyan', f'⏭ PROFILE REFLECTION COMPLETE')} by {_bold(agent)}: {reason}")
             print(f"      progress: {len(completed)}/{total} completed: {', '.join(completed)}")
             continue
 

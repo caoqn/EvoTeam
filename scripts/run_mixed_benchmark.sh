@@ -3,7 +3,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "${ROOT}"
-PYTHON_BIN="${META_TEAM_PYTHON:-python3.11}"
+PYTHON_BIN="${EVOTEAM_PYTHON:-python3.11}"
 MANIFEST="${MIXED_MANIFEST:-benchmarks/MIXED-BENCHMARK/manifests/mixed_benchmark_official_116_plus_838_test_seed20260828.json}"
 ACTION="${1:?Usage: $0 <build-manifest|validate|evolve|test|aggregate> ...}"
 shift

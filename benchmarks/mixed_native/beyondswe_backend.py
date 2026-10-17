@@ -1078,7 +1078,7 @@ _TASK_GUIDANCE = {
     ),
 }
 
-_MT_TASK_TEMPLATES = {
+_NATIVE_TASK_TEMPLATES = {
     "CrossRepo": (
         "## Task: Cross-Repository Bug Fix\n\n"
         "<uploaded_files>\n{workspace_dir}\n</uploaded_files>\n\n"
@@ -1298,7 +1298,9 @@ class BeyondSWEAdapter(BenchmarkAdapter):
         workspace_tree = item.get("_workspace_tree", "")
         installed_packages = item.get("_installed_packages", "")
 
-        task_template = _MT_TASK_TEMPLATES.get(task_type, _MT_TASK_TEMPLATES["CrossRepo"])
+        task_template = _NATIVE_TASK_TEMPLATES.get(
+            task_type, _NATIVE_TASK_TEMPLATES["CrossRepo"],
+        )
         task = task_template.format(
             workspace_dir=workdir,
             problem_statement=problem,

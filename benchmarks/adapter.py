@@ -1012,7 +1012,11 @@ class BenchmarkAdapter(ABC):
                     )
                     infrastructure_failure = True
 
-            if team_rule_registry is not None and not infrastructure_failure:
+            if (
+                team_rule_registry is not None
+                and not infrastructure_failure
+                and team_template_registry.get_current(team_selection.family_id) is not None
+            ):
                 try:
                     handoff_trace = list(result.metadata.get("handoff_trace", []))
                     participant_ids = _handoff_participant_ids(pool, result)

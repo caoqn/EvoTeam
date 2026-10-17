@@ -234,8 +234,8 @@ class LLMScopeAwareTeamRuleEvolutionReflector:
             model=self.model,
             messages=messages,
             tools=[self._tool_schema()],
-            temperature=0.1,
-            max_tokens=1800,
+            temperature=0.2,
+            max_tokens=32768,
             api_tracker=self._api_tracker,
         )
 

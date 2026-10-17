@@ -1,9 +1,9 @@
-## L2 Reflection — Pairwise Collaboration & Teammate Profiling
+## Teammate Profile Reflection
 
-You are now in the **L2 Reflection phase**. Reflect on your interactions with other agents during this task.
+You are now in the **Teammate Profile Reflection phase**. Reflect on your interactions with other agents during this task.
 
 ### Goal
-Improve future team collaboration by updating observations about teammates' working styles. Canonical handoff contracts are reflected separately after L2 and saved in `handoff_rules.json`.
+Improve future team collaboration by updating observations about teammates' working styles. Canonical handoff contracts are reflected separately after profile reflection and saved in `handoff_rules.json`.
 
 **Scope boundary:** A teammate profile is a compact, general capability summary. It must not duplicate a handoff rule. Do not record handoff triggers, `rule_id` values, `from_agent`/`to_agent` routing, payload schemas, required evidence, verification steps, fallback procedures, or instructions about when to transfer information. Those belong exclusively to the team-scoped handoff-rule reflector.
 
@@ -11,7 +11,7 @@ Improve future team collaboration by updating observations about teammates' work
 
 **Default action: Skip.** If collaboration went smoothly, record useful observations with `update_teammate_profile`, then call `skip_l2_reflection`. **Do NOT send discussion messages just to be polite or ask generic questions.**
 
-**Only initiate a discussion if there was a concrete problem** — e.g., misunderstood requirements, unclear handoffs, wrong outputs that needed rework, or repeated failures. The "Your L2 Discussion Assignments" section at the end tells you your role **if** you need to discuss:
+**Only initiate a discussion if there was a concrete problem** — e.g., misunderstood requirements, unclear handoffs, wrong outputs that needed rework, or repeated failures. The "Your Profile Discussion Assignments" section at the end tells you your role **if** you need to discuss:
 
 - **If you are the initiator** for a partner: Send them a brief message **about the specific problem**. Then use `wait_for_replies` to collect their response.
 - **If you are waiting** for a partner: Do NOT send them a message first. Wait for them to reach out, then reply thoughtfully.
@@ -52,9 +52,9 @@ For each partner (whether you initiated or responded), use **`update_teammate_pr
    - If a concrete event can be generalized into a stable capability or limitation, write the generalized statement and explicitly remove the concrete old item
    - Keep only stable capability, reliability, limitation, and communication observations; do not preserve task-specific evidence or handoff procedures
 
-### Complete L2
+### Complete Profile Reflection
 
-When you have finished recording observations for all the partners **you** need to initiate with, call `skip_l2_reflection(reason)` to **mark your L2 updates as complete**.
+When you have finished recording observations for all the partners **you** need to initiate with, call `skip_l2_reflection(reason)` to **mark your profile updates as complete**.
 
 **After calling `skip_l2_reflection`**, you will enter idle. But you **remain responsive**: if another agent reaches out to discuss collaboration with you, you will be woken up. **You MUST reply using `send_message`**, then use `update_teammate_profile` to record useful observations.
 
@@ -62,7 +62,7 @@ The reflection session ends when ALL agents have called `skip_l2_reflection`.
 
 ### Rules
 - **Skip by default** — Discuss only if there was a real problem.
-- **Be concise** — If you do discuss, aim to complete L2 in 2-3 tool calls total. One message, one reply, done.
+- **Be concise** — If you do discuss, aim to complete profile reflection in 2-3 tool calls total. One message, one reply, done.
 - **Only profile agents you directly interacted with** during this task
 - Be **objective and evidence-based** — use task events as internal evidence, but write only the resulting general pattern
 - **Curate when updating** — retain useful existing patterns, consolidate similar items, and submit the resulting full profile
@@ -71,4 +71,4 @@ The reflection session ends when ALL agents have called `skip_l2_reflection`.
 - **Do NOT initiate discussion with partners you are assigned to wait for**
 
 ### CRITICAL
-**You MUST call `skip_l2_reflection`** when your own L2 updates are done. After that, stay responsive — reply if other agents send you L2 discussion messages.
+**You MUST call `skip_l2_reflection`** when your own L2 updates are done. After that, stay responsive — reply if other agents send you profile discussion messages.

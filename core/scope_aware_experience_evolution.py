@@ -210,10 +210,10 @@ class ScopeAwareExperienceEvolutionMixin:
             + (overview + "\n\n" if overview else "")
             + reflection_ctx + "\n\n"
             "---\n\n"
-            "**ENTERING L1 REFLECTION PHASE**\n\n"
+            "**ENTERING AGENT SELF-REFLECTION**\n\n"
             + l1_prompt + "\n\n"
-            "Complete your L1 reflection using the tools above, then wait. "
-            "The system will automatically advance to L2 once all agents finish L1."
+            "Complete your self-reflection using the tools above, then wait. "
+            "The system will automatically advance to teammate profile reflection once all agents finish self-reflection."
         )
 
     def terminate(self, reason: str = "chairman_terminate") -> None:
@@ -229,17 +229,21 @@ class ScopeAwareExperienceEvolutionMixin:
         _completed_map = {"L1": self._l1_completed, "L2": self._l2_completed}
         completed = _completed_map.get(completed_level, set())
         reflection_agents = self._agents_for_reflection_level(completed_level)
+        phase_label = {
+            "L1": "Agent self-reflection",
+            "L2": "Teammate profile reflection",
+        }.get(completed_level, completed_level)
         total = len(reflection_agents)
         remaining = [n for n in reflection_agents if n not in completed]
 
         if remaining:
             return (
-                f"\n\n{completed_level} progress: {len(completed)}/{total} agents completed. "
+                f"\n\n{phase_label} progress: {len(completed)}/{total} agents completed. "
                 f"Remaining: {', '.join(remaining)}"
             )
 
         advance_result = self._auto_advance_phase(completed_level)
-        return f"\n\nAll agents completed {completed_level}. {advance_result}"
+        return f"\n\nAll agents completed {phase_label}. {advance_result}"
 
     def _agents_for_reflection_level(self, completed_level: str) -> list[str]:
         if completed_level == "L2":
@@ -261,7 +265,7 @@ class ScopeAwareExperienceEvolutionMixin:
                 self.message_store.terminate(reason="l1_all_completed_l2_disabled")
                 self._done.set()
                 return (
-                    "All agents completed L1 reflection. L2 teammate profiles "
+                    "All agents completed self-reflection. Teammate profiles "
                     "are disabled; session ending."
                 )
             self._phase = "l2_reflection"
@@ -273,9 +277,9 @@ class ScopeAwareExperienceEvolutionMixin:
                     "reflection_agents": self._l2_reflection_agents,
                 })
             self._restart_all_agents_for_phase("l2_reflection")
-            self._broadcast_l2_start()
+            self._broadcast_profile_reflection_start()
             self._start_reflection_phase_guard("l2_reflection")
-            return "Auto-advancing to L2 reflection phase."
+            return "Auto-advancing to teammate profile reflection."
 
         elif completed_level == "L2" and self._phase == "l2_reflection":
             self._phase = "terminated"
@@ -286,7 +290,7 @@ class ScopeAwareExperienceEvolutionMixin:
                 })
             self.message_store.terminate(reason="l2_all_completed")
             self._done.set()
-            return "All agents completed L2 reflection; session ending."
+            return "All participating agents completed teammate profile reflection; session ending."
 
         return ""
 
@@ -318,8 +322,8 @@ class ScopeAwareExperienceEvolutionMixin:
                             sender="[SYSTEM]",
                             receiver=other_name,
                             content=(
-                                f"[L2 UPDATE] {name} has exited and will not participate "
-                                f"in L2 discussion. Proceed with your own L2 reflection."
+                                f"[PROFILE UPDATE] {name} has exited and will not participate "
+                                f"in profile discussion. Proceed with your own profile reflection."
                             ),
                         )
 
@@ -420,10 +424,10 @@ class ScopeAwareExperienceEvolutionMixin:
             "3. Leave recruitment, task assignments, team membership, and handoff contracts to team and rule reflection.\n"
             "4. Do not turn model, API, network, tool, Docker, or MCP failures into agent updates.\n"
             "5. Do not weaken correctness or verification, or impose arbitrary universal quotas because resources were exhausted.\n\n"
-            "Choose one action and return one structured decision under the L1 instructions. "
+            "Choose one action and return one structured decision under the agent self-reflection instructions. "
             "Choose no_update when evidence is insufficient. "
             "Do not continue debugging or writing code. Use at most 1-2 read-only "
-            "commands if needed to check evidence, then complete L1 using the provided tools."
+            "commands if needed to check evidence, then complete self-reflection using the provided tools."
         )
 
         if self._task_validation is not None:
@@ -446,7 +450,7 @@ class ScopeAwareExperienceEvolutionMixin:
             if overview:
                 parts.append(overview)
             parts.append(forced_context)
-            parts.append("---\n\n**[PHASE: L1 REFLECTION — FORCED]**\n\n" + l1_prompt)
+            parts.append("---\n\n**[PHASE: AGENT SELF-REFLECTION — FORCED]**\n\n" + l1_prompt)
             if name == self.chairman_name:
                 parts.append(
                     "### Chairman-Specific Reflection\n"
@@ -470,11 +474,11 @@ class ScopeAwareExperienceEvolutionMixin:
             if overview:
                 parts.append(overview)
             parts.append(context)
-            phase_header = "---\n\n**[PHASE: L1 REFLECTION]**\n\n" + l1_prompt
+            phase_header = "---\n\n**[PHASE: AGENT SELF-REFLECTION]**\n\n" + l1_prompt
             if name == self.chairman_name:
                 phase_header += (
                     "\n\n(This is a backup notification. You may have already received "
-                    "L1 instructions via finalize_task. Proceed with your L1 reflection.)"
+                    "Agent self-reflection instructions via finalize_task. Proceed with your self-reflection.)"
                 )
             parts.append(phase_header)
             self.message_store.send(
@@ -483,28 +487,28 @@ class ScopeAwareExperienceEvolutionMixin:
                 content="\n\n".join(parts),
             )
 
-    def _broadcast_l2_start(self) -> None:
-        l2_prompt = _load_prompt_template("reflection/l2_communication.md")
-        if not l2_prompt:
-            l2_prompt = (
+    def _broadcast_profile_reflection_start(self) -> None:
+        profile_prompt = _load_prompt_template("reflection/teammate_profiles.md")
+        if not profile_prompt:
+            profile_prompt = (
                 "Reflect on teammate interactions. Use "
                 "update_teammate_profile / skip_l2_reflection."
             )
 
-        l2_agents = self._agents_for_reflection_level("L2")
+        profile_agents = self._agents_for_reflection_level("L2")
         chairman_only = (
-            l2_agents == [self.chairman_name]
+            profile_agents == [self.chairman_name]
             and not getattr(self, "member_teammate_profiles_enabled", False)
         )
-        initiators = self.message_store.get_pairwise_initiators(l2_agents)
+        initiators = self.message_store.get_pairwise_initiators(profile_agents)
 
-        for name in l2_agents:
+        for name in profile_agents:
             if chairman_only:
                 role_guidance = (
                     "### Chairman-Only Profile Reflection\n\n"
                     "Review the actual recruited members' task-execution messages and "
                     "outcomes. Update only stable, task-relevant capability observations "
-                    "for members you actually started. Do not start a new L2 discussion, "
+                    "for members you actually started. Do not start a new profile discussion, "
                     "and do not encode handoff procedures in these profiles. After recording "
                     "any useful observations, call skip_l2_reflection."
                 )
@@ -512,13 +516,13 @@ class ScopeAwareExperienceEvolutionMixin:
                     sender="[SYSTEM]",
                     receiver=name,
                     content=(
-                        "[PHASE: L2 REFLECTION] Chairman-only teammate-profile reflection.\n\n"
+                        "[PHASE: TEAMMATE PROFILE REFLECTION] Chairman-only teammate-profile reflection.\n\n"
                         + role_guidance
                     ),
                 )
                 continue
             partners = self.message_store.get_communication_partners(name)
-            partners = [p for p in partners if p in l2_agents]
+            partners = [p for p in partners if p in profile_agents]
 
             initiate_to: list[str] = []
             wait_from: list[str] = []
@@ -530,26 +534,26 @@ class ScopeAwareExperienceEvolutionMixin:
                 else:
                     wait_from.append(p)
 
-            role_guidance = self._build_l2_role_guidance(name, initiate_to, wait_from)
+            role_guidance = self._build_profile_role_guidance(name, initiate_to, wait_from)
 
             self.message_store.send(
                 sender="[SYSTEM]",
                 receiver=name,
                 content=(
-                    "[PHASE: L2 REFLECTION] Moving to L2 pairwise communication reflection.\n\n"
-                    + l2_prompt + "\n\n"
+                    "[PHASE: TEAMMATE PROFILE REFLECTION] Moving to teammate profile reflection.\n\n"
+                    + profile_prompt + "\n\n"
                     + role_guidance
                 ),
             )
 
     @staticmethod
-    def _build_l2_role_guidance(
+    def _build_profile_role_guidance(
         agent_name: str,
         initiate_to: list[str],
         wait_from: list[str],
     ) -> str:
         lines: list[str] = []
-        lines.append("### Your L2 Discussion Assignments\n")
+        lines.append("### Your Profile Discussion Assignments\n")
 
         if initiate_to:
             names = ", ".join(initiate_to)

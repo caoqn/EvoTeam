@@ -227,6 +227,11 @@ replace this requirement.
 | Orchestration | `primitives` | Provide agent lifecycle and task submission operations. |
 | Reflection | `reflection` | Provide prompt patch, skill, and teammate profile update operations. |
 
+Teammate Profile Reflection maintains the Chairman's recruitment memory.
+It is separate from team-template and handoff-rule evolution. The external
+tool package's legacy `skip_l2_reflection` tool and internal `l2_reflection`
+protocol remain for compatibility; these names refer to profile maintenance.
+
 The benchmark-specific execution tools are:
 
 | Benchmark | Execution tools |
